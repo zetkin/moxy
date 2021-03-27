@@ -1,4 +1,5 @@
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { Server } from 'node:http';
@@ -28,6 +29,7 @@ export default function moxy(config? : MoxyConfig) {
     const app = express();
 
     app.use(bodyParser.json());
+    app.use(cors());
 
     let mocks : Mock[] = [];
 
