@@ -77,6 +77,12 @@ export default function moxy(config? : MoxyConfig) {
         res.status(204).end();
     });
 
+    // Delete all mocks
+    app.delete('/_mocks', (req, res) => {
+        mocks = [];
+        res.status(204).end();
+    });
+
     app.use((req, res, next) => {
         const mock = findMock(req.path, req.method);
         if (mock) {
