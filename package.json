@@ -1,0 +1,14 @@
+{
+  "name": "moxy",
+  "version": "dev",
+  "description": "Testing, mocking and spying proxy",
+  "main": "lib/index.js",
+  "repository": "https://github.com/zetkin/moxy",
+  "author": "Richard Olsson <richard@zetkin.org",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "@types/node": "^14.14.37",
+    "typescript": "^4.2.3"
+  }
+}
