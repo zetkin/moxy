@@ -7,6 +7,9 @@
   "author": "Richard Olsson <richard@zetkin.org",
   "license": "MIT",
   "private": false,
+  "bin": {
+    "moxy": "./lib/cli.js"
+  },
   "devDependencies": {
     "@types/node": "^14.14.37",
     "typescript": "^4.2.3"
@@ -15,6 +18,7 @@
     "@types/cors": "^2.8.10",
     "@types/express": "^4.17.11",
     "body-parser": "^1.19.0",
+    "command-line-args": "^5.1.1",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "http-proxy-middleware": "^1.0.6"
