@@ -1,6 +1,6 @@
 {
   "name": "moxy",
-  "version": "dev",
+  "version": "1.0.0-dev",
   "description": "Testing, mocking and spying proxy",
   "main": "lib/index.js",
   "repository": "https://github.com/zetkin/moxy",
