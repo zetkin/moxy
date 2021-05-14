@@ -53,6 +53,11 @@ export default function moxy(config? : MoxyConfig) {
         res.json({ log: requestLog });
     });
 
+    app.delete('/_log', (req, res) => {
+        requestLog = [];
+        res.status(204).end();
+    });
+
     app.put(RES_MOCK_REGEX, (req, res) => {
         const mock : Mock = {
             method: req.params[1].toLowerCase(),
