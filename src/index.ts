@@ -9,14 +9,24 @@ interface MoxyConfig {
     forward?: string;
 };
 
+type HTTPHeaders = Record<string, string | string[] | undefined>;
+
 interface Mock {
     method: string,
     path: string,
     response: {
         status: number,
-        headers?: Record<string,string>,
+        headers?: HTTPHeaders,
         data: Record<string,unknown>,
     }
+};
+
+interface LoggedRequest {
+    timestamp: Date,
+    method: string,
+    path: string,
+    headers?: HTTPHeaders,
+    data?: Record<string,unknown>,
 };
 
 const RES_MOCK_REGEX = /(\/.+)\/_mocks\/([a-z]+)$/;
@@ -32,11 +42,16 @@ export default function moxy(config? : MoxyConfig) {
     app.use(cors());
 
     let mocks : Mock[] = [];
+    let requestLog : LoggedRequest[] = [];
 
     function findMock(path : string, method : string) : Mock | null {
         const mock = mocks.find(m => m.path === path && m.method === method.toLowerCase());
         return mock || null;
     }
+
+    app.get('/_log', (req, res) => {
+        res.json({ log: requestLog });
+    });
 
     app.put(RES_MOCK_REGEX, (req, res) => {
         const mock : Mock = {
@@ -98,6 +113,29 @@ export default function moxy(config? : MoxyConfig) {
         app.use(createProxyMiddleware({
             target: forward,
             changeOrigin: true,
+            onProxyReq: (proxyReq, req, res) => {
+                const logEntry : LoggedRequest = {
+                    timestamp: new Date(),
+                    method: req.method,
+                    path: req.path,
+                    headers: req.headers,
+                };
+
+                if (req.get('Content-Type') === 'application/json') {
+                    let data = '';
+                    req.on('data', chunk => {
+                        data += chunk;
+                    });
+
+                    req.on('end', () => {
+                        logEntry.data = JSON.parse(data);
+                    });
+                }
+
+                req.on('end', () => {
+                    requestLog.push(logEntry);
+                });
+            },
         }));
     }
 
