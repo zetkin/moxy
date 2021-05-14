@@ -58,6 +58,14 @@ export default function moxy(config? : MoxyConfig) {
         res.json({ log: requestLog });
     });
 
+    app.get(/(\/.+)\/_log$/, (req, res) => {
+        const path = req.params[0];
+        res.json({
+            path,
+            log: requestLog.filter(entry => entry.path === path),
+        });
+    });
+
     app.delete('/_log', (req, res) => {
         requestLog = [];
         res.status(204).end();
