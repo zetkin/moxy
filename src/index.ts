@@ -151,7 +151,12 @@ export default function moxy(config? : MoxyConfig) {
                     });
 
                     proxyRes.on('end', () => {
-                        logEntry.response.data = JSON.parse(data);
+                        try {
+                            logEntry.response.data = JSON.parse(data);
+                        }
+                        catch (err) {
+                            // Do nothing
+                        }
                     });
                 }
 
