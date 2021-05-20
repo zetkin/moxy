@@ -4,6 +4,14 @@ import express from 'express';
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { Server } from 'node:http';
 
+declare global {
+    namespace Express {
+        interface Request {
+            logEntry?: LoggedRequest;
+        }
+    }
+}
+
 interface MoxyConfig {
     port?: number,
     forward?: string;
@@ -128,39 +136,53 @@ export default function moxy(config? : MoxyConfig) {
     });
 
     if (forward) {
+        app.use((req, res, next) => {
+            req.logEntry = {
+                timestamp: new Date(),
+                method: req.method,
+                path: req.path,
+                headers: {},
+                response: {
+                    status: 0,
+                    headers: {},
+                },
+            };
+
+            if (Object.keys(req.body).length) {
+                req.logEntry.data = req.body;
+            }
+
+            next();
+        });
+
         app.use(createProxyMiddleware({
             target: forward,
             changeOrigin: true,
             onProxyReq: fixRequestBody,
             onProxyRes: (proxyRes, req, res) => {
-                const logEntry : LoggedRequest = {
-                    timestamp: new Date(),
-                    method: req.method,
-                    path: req.path,
-                    headers: req.headers,
-                    response: {
-                        status: proxyRes.statusCode!,
-                        headers: proxyRes.headers,
+                const logEntry = req.logEntry;
+                if (logEntry) {
+                    logEntry.response.status = proxyRes.statusCode!;
+                    logEntry.response.headers = proxyRes.headers;
+
+                    if (proxyRes.headers['content-type']?.startsWith('application/json')) {
+                        let data = '';
+                        proxyRes.on('data', chunk => {
+                            data += chunk;
+                        });
+
+                        proxyRes.on('end', () => {
+                            try {
+                                logEntry.response.data = JSON.parse(data);
+                            }
+                            catch (err) {
+                                // Do nothing
+                            }
+                        });
                     }
-                };
 
-                if (proxyRes.headers['content-type']?.startsWith('application/json')) {
-                    let data = '';
-                    proxyRes.on('data', chunk => {
-                        data += chunk;
-                    });
-
-                    proxyRes.on('end', () => {
-                        try {
-                            logEntry.response.data = JSON.parse(data);
-                        }
-                        catch (err) {
-                            // Do nothing
-                        }
-                    });
+                    requestLog.push(logEntry);
                 }
-
-                requestLog.push(logEntry);
             },
         }));
     }
