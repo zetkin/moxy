@@ -11,20 +11,18 @@
     "moxy": "./lib/cli.js"
   },
   "scripts": {
-    "prepare": "yarn tsc"
-  },
-  "devDependencies": {
-    "@types/command-line-args": "^5.0.0",
-    "@types/node": "^14.14.37",
-    "typescript": "^4.2.3"
+    "postinstall": "yarn tsc"
   },
   "dependencies": {
+    "@types/command-line-args": "^5.0.0",
     "@types/cors": "^2.8.10",
     "@types/express": "^4.17.11",
+    "@types/node": "^14.14.37",
     "body-parser": "^1.19.0",
     "command-line-args": "^5.1.1",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "http-proxy-middleware": "^2.0.0"
+    "http-proxy-middleware": "^2.0.0",
+    "typescript": "^4.2.3"
   }
 }
