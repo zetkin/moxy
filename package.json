@@ -11,7 +11,7 @@
     "moxy": "./lib/cli.js"
   },
   "scripts": {
-    "postinstall": "tsc"
+    "postinstall": "yarn tsc"
   },
   "devDependencies": {
     "@types/command-line-args": "^5.0.0",
