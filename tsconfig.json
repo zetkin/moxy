@@ -7,7 +7,7 @@
     "allowJs": true,
     "outDir": "lib",
     "rootDir": "src",
-    "strict": true,
+    "strict": false,
     "noImplicitAny": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
