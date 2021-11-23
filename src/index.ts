@@ -35,6 +35,7 @@ interface LoggedRequest {
     path: string,
     headers?: HTTPHeaders,
     data?: Record<string,unknown>,
+    mocked: boolean,
     response: {
         status: number,
         headers?: HTTPHeaders,
@@ -125,8 +126,35 @@ export default function moxy(config? : MoxyConfig) {
     });
 
     app.use((req, res, next) => {
+        req.logEntry = {
+            timestamp: new Date(),
+            method: req.method,
+            path: req.path,
+            mocked: false,
+            headers: {},
+            response: {
+                status: 0,
+                headers: {},
+            },
+        };
+        
+        requestLog.push(req.logEntry);
+
+        if (Object.keys(req.body).length) {
+            req.logEntry.data = req.body;
+        }
+
+        next();
+    });
+
+    app.use((req, res, next) => {
         const mock = findMock(req.path, req.method);
         if (mock) {
+            if (req.logEntry) {
+                req.logEntry.mocked = true;
+                req.logEntry.response.status = mock.response.status;
+                req.logEntry.response.data = mock.response.data;
+            }
             res.status(mock.response.status);
             res.json(mock.response.data);
         }
@@ -136,25 +164,6 @@ export default function moxy(config? : MoxyConfig) {
     });
 
     if (forward) {
-        app.use((req, res, next) => {
-            req.logEntry = {
-                timestamp: new Date(),
-                method: req.method,
-                path: req.path,
-                headers: {},
-                response: {
-                    status: 0,
-                    headers: {},
-                },
-            };
-
-            if (Object.keys(req.body).length) {
-                req.logEntry.data = req.body;
-            }
-
-            next();
-        });
-
         app.use(createProxyMiddleware({
             target: forward,
             changeOrigin: true,
@@ -180,8 +189,6 @@ export default function moxy(config? : MoxyConfig) {
                             }
                         });
                     }
-
-                    requestLog.push(logEntry);
                 }
             },
         }));

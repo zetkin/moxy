@@ -18,6 +18,7 @@ interface LoggedRequest {
     path: string;
     headers?: HTTPHeaders;
     data?: Record<string, unknown>;
+    mocked: boolean;
     response: {
         status: number;
         headers?: HTTPHeaders;
