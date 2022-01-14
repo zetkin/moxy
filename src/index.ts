@@ -1,4 +1,5 @@
 import bodyParser from 'body-parser'
+import util from 'util'
 import cors from 'cors'
 import express from 'express'
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware'
@@ -141,6 +142,7 @@ export default function moxy(config?: {
       createProxyMiddleware({
         target: forward,
         changeOrigin: true,
+        logLevel: 'error',
         onProxyReq: fixRequestBody,
         onProxyRes: (proxyRes, req, res) => {
           const logEntry = req.logEntry
@@ -177,8 +179,10 @@ export default function moxy(config?: {
       server = app.listen(port)
       return server
     },
-    stop: () => {
-      server.close()
+    stop: async () => {
+      return new Promise((resolve) => {
+        server.close(() => resolve())
+      })
     },
     clearLog: () => {
       requestLog = []

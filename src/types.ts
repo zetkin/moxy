@@ -5,7 +5,7 @@ export type HTTPHeaders = Record<string, string | string[] | undefined>
 
 export interface Moxy {
   start: () => Server
-  stop: () => void
+  stop: () => Promise<void>
   clearLog: () => void
   log: (path?: string) => Log
 }
