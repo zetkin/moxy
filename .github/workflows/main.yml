@@ -1,0 +1,23 @@
+name: CI
+
+on:
+    push:
+        branches: [main, dev]
+    pull_request:
+        branches: [main, dev]
+
+jobs:
+    unit-test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - name: No `.only()` in tests
+              run: exit `grep -ER "(test|describe|it)\.only" src | wc -l`
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: 16.x
+                  cache: "yarn"
+            - name: Install dependencies
+              run: yarn install --frozen-lockfile
+            - name: Run unit tests
+              run: yarn test
