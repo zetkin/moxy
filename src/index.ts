@@ -3,7 +3,7 @@ import cors from 'cors'
 import express from 'express'
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware'
 import { Server } from 'node:http'
-import { Mock, LoggedRequest, Moxy, HTTPMethod, MockResponse } from './types'
+import { Moxy, Mock, LoggedRequest } from './types'
 
 declare global {
   namespace Express {
@@ -183,7 +183,7 @@ export default function moxy(config?: {
     clearLog: () => {
       requestLog = []
     },
-    requestLog: (path?: string) => {
+    log: (path?: string) => {
       if (path) {
         return {
           path,

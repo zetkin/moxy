@@ -7,13 +7,7 @@ export interface Moxy {
   start: () => Server
   stop: () => void
   clearLog: () => void
-  requestLog: (path?: string) => LoggedRequestsRes
-  // setMock: <G>(path: string, method: HTTPMethod, response: MockResponse<G>) => void
-}
-
-export interface MoxyConfig {
-  port?: number
-  forward?: string
+  log: (path?: string) => Log
 }
 
 // Mocks as they are stored in the list of mocks
@@ -23,10 +17,16 @@ export interface Mock {
   response: MockResponse
 }
 
+// Used to set what will be returned from the mocked endpoint
 export interface MockResponse<ResData = unknown> {
   data?: ResData
   headers?: HTTPHeaders
   status?: number
+}
+
+export interface Log<ReqData = unknown, ResData = unknown> {
+  log: LoggedRequest<ReqData, ResData>[]
+  path?: string
 }
 
 export interface LoggedRequest<ReqData = unknown, ResData = unknown> {
@@ -41,9 +41,4 @@ export interface LoggedRequest<ReqData = unknown, ResData = unknown> {
     headers?: HTTPHeaders
     status: number
   }
-}
-
-export interface LoggedRequestsRes<ReqData = unknown, ResData = unknown> {
-  log: LoggedRequest<ReqData, ResData>[]
-  path?: string
 }
