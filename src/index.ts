@@ -98,6 +98,7 @@ export default function moxy(config?: {
     res.status(204).end()
   })
 
+  // Create logEntry and attach to request
   app.use((req, res, next) => {
     req.logEntry = {
       timestamp: new Date(),
@@ -178,6 +179,18 @@ export default function moxy(config?: {
     },
     stop: () => {
       server.close()
+    },
+    clearLog: () => {
+      requestLog = []
+    },
+    requestLog: (path?: string) => {
+      if (path) {
+        return {
+          path,
+          log: requestLog.filter((entry) => entry.path === path),
+        }
+      }
+      return { log: requestLog }
     },
   }
 }

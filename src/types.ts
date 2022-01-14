@@ -6,6 +6,8 @@ export type HTTPHeaders = Record<string, string | string[] | undefined>
 export interface Moxy {
   start: () => Server
   stop: () => void
+  clearLog: () => void
+  requestLog: (path?: string) => LoggedRequestsRes
   // setMock: <G>(path: string, method: HTTPMethod, response: MockResponse<G>) => void
 }
 
