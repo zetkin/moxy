@@ -4,8 +4,6 @@ import { Log } from '../src/types'
 import { apiUrl, port } from '../src/testing/utils'
 
 describe('Retrieve request log', () => {
-  // TODO: Test that requests to moxy _mocks _logs aren't stored in request log
-
   describe('with HTTP', () => {
     test('gets an empty log when no requests made', async () => {
       const { start, stop } = moxy({ port: port() })
@@ -103,4 +101,23 @@ describe('Clear entire request log', () => {
     expect(log().log.length).toEqual(0)
     await stop()
   })
+})
+
+test('Requests to moxy server are not stored in request log', async () => {
+  // TODO: rework to use only js api
+  const { start, stop, log } = moxy({ port: port() })
+  start()
+  // Set mock on path
+  await fetch(apiUrl('/random_url/_mocks/get'), {
+    body: JSON.stringify({
+      status: 200,
+    }),
+    method: 'PUT',
+  })
+  // Make request to path
+  await fetch(apiUrl('/random_url'))
+  // Only the request to /random_url is logged, not the request to _mocks
+  expect(log().log.length).toEqual(1)
+  expect(log().log[0].path).toEqual('/random_url')
+  await stop()
 })
