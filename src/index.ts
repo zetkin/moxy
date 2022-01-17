@@ -1,18 +1,9 @@
 import bodyParser from 'body-parser'
-import util from 'util'
 import cors from 'cors'
 import express from 'express'
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware'
 import { Server } from 'node:http'
 import { Moxy, Mock, LoggedRequest } from './types'
-
-declare global {
-  namespace Express {
-    interface Request {
-      logEntry?: LoggedRequest
-    }
-  }
-}
 
 const RES_MOCK_REGEX = /(\/.+)\/_mocks\/([a-z]+)$/
 const RES_MOCKS_REGEX = /(\/.+)\/_mocks$/
@@ -26,9 +17,7 @@ export default function moxy(config?: {
 
   const app = express()
 
-  app.use(bodyParser.json())
-  app.use(cors())
-
+  let server: Server
   let mocks: Mock[] = []
   let requestLog: LoggedRequest[] = []
 
@@ -39,20 +28,20 @@ export default function moxy(config?: {
     return mock || null
   }
 
+  app.use(bodyParser.json())
+  app.use(cors())
+
   app.get('/_log', (req, res) => {
-    res.json({ log: requestLog })
+    res.json(moxyApi.log())
   })
 
   app.get(/(\/.+)\/_log$/, (req, res) => {
     const path = req.params[0]
-    res.json({
-      path,
-      log: requestLog.filter((entry) => entry.path === path),
-    })
+    res.json(moxyApi.log(path))
   })
 
   app.delete('/_log', (req, res) => {
-    requestLog = []
+    moxyApi.clearLog()
     res.status(204).end()
   })
 
@@ -172,9 +161,7 @@ export default function moxy(config?: {
     )
   }
 
-  let server: Server
-
-  return {
+  const moxyApi: Moxy = {
     start: () => {
       server = app.listen(port)
       return server
@@ -197,4 +184,6 @@ export default function moxy(config?: {
       return { log: requestLog }
     },
   }
+
+  return moxyApi
 }

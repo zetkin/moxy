@@ -1,5 +1,13 @@
 import { Server } from 'node:http'
 
+declare global {
+  namespace Express {
+    interface Request {
+      logEntry?: LoggedRequest
+    }
+  }
+}
+
 export type HTTPMethod = 'get' | 'post' | 'put' | 'patch' | 'delete'
 export type HTTPHeaders = Record<string, string | string[] | undefined>
 
