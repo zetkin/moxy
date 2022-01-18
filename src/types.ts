@@ -21,8 +21,8 @@ export interface Moxy {
   clearLog: () => void
   setMock: <G>(
     path: string,
-    method: HTTPMethod,
-    response: MockResponse<G>
+    method?: HTTPMethod,
+    response?: MockResponse<G>
   ) => boolean
 }
 

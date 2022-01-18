@@ -15,11 +15,9 @@ describe('Set mock', () => {
     test('with default mock response (200 status, no body, no custom headers)', async () => {
       const { start, stop } = moxy({ port: port() })
       start()
-      // Default mock for get request
       const setMockRes = await setMockReq(`/login`)
       expect(setMockRes.status).toEqual(201)
 
-      // Check that mock set
       const res = await fetch(apiUrl(`/login`))
       expect(res.status).toEqual(200)
 
@@ -37,12 +35,9 @@ describe('Set mock', () => {
       expect(setMockRes.status).toEqual(201)
 
       const res = await fetch(apiUrl(`/login`), { method: 'POST' })
-      // Test sets correct status
       expect(res.status).toEqual(401)
-      // Test returns body
       const body = await res.json()
       expect(body).toEqual({ error: 'Unauthorised' })
-      // Test sets headers
       expect(res.headers.keys()).toContain('connection')
       expect(res.headers.values()).toContain('close')
 
@@ -85,5 +80,52 @@ describe('Set mock', () => {
     })
   })
 
-  describe('with .setMock()', () => {})
+  describe('with .setMock()', () => {
+    test('with default mock response (200 status, no body, no custom headers)', async () => {
+      const { start, stop, setMock } = moxy({ port: port() })
+      start()
+      setMock(`/login`)
+      const res = await fetch(apiUrl(`/login`))
+      expect(res.status).toEqual(200)
+      await stop()
+    })
+
+    test('with custom mock response', async () => {
+      const { start, stop, setMock } = moxy({ port: port() })
+      start()
+      setMock('/login', 'post', {
+        status: 401,
+        data: { error: 'Unauthorised' },
+        headers: [['Connection', 'close']],
+      })
+      const res = await fetch(apiUrl(`/login`), { method: 'POST' })
+      expect(res.status).toEqual(401)
+      const body = await res.json()
+      expect(body).toEqual({ error: 'Unauthorised' })
+      expect(res.headers.keys()).toContain('connection')
+      expect(res.headers.values()).toContain('close')
+      await stop()
+    })
+
+    test('can override a mock', async () => {
+      const { start, stop, setMock } = moxy({ port: port() })
+      start()
+
+      let hadPreviousMock = setMock('/login', 'get', {
+        status: 501,
+      })
+      expect(hadPreviousMock).toEqual(false)
+
+      const res = await fetch(apiUrl(`/login`))
+      expect(res.status).toEqual(501)
+
+      hadPreviousMock = setMock('/login', 'get', { status: 204 })
+      expect(hadPreviousMock).toEqual(true)
+
+      const resAfterReset = await fetch(apiUrl(`/login`))
+      expect(resAfterReset.status).toEqual(204)
+
+      await stop()
+    })
+  })
 })

@@ -60,7 +60,12 @@ export default function moxy(config?: {
       res.status(400).json({ error: 'Invalid method' })
     }
 
-    const existing = moxyApi.setMock(path, method, req.body.response || {})
+    const existing = moxyApi.setMock(
+      path,
+      method,
+      req.body.response as MockResponse | undefined
+    )
+
     if (existing) {
       // If mock overwritten, return 204
       res.status(204).end()
@@ -190,8 +195,8 @@ export default function moxy(config?: {
     },
     setMock: <G>(
       path: string,
-      method: HTTPMethod,
-      response: MockResponse<G> // Improve this
+      method: HTTPMethod = 'get',
+      response: MockResponse<G> = {}
     ) => {
       const existingMock = findMock(path, method)
 
