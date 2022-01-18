@@ -222,7 +222,14 @@ export default function moxy(config?: {
       return Boolean(existingMock)
     },
     removeMock: (path?: string, method?: HTTPMethod) => {
-      return
+      if (path && method) {
+        const existing = findMock(path, method)
+        mocks = mocks.filter((mock) => mock !== existing)
+      } else if (path) {
+        mocks = mocks.filter((mock) => mock.path !== path)
+      } else {
+        mocks = []
+      }
     },
   }
 
