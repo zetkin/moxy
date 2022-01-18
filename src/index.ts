@@ -53,28 +53,19 @@ export default function moxy(config?: {
   })
 
   app.put(RES_MOCK_REGEX, (req, res) => {
-    const method = req.params[1].toLowerCase()
+    const method = req.params[1].toLowerCase() as HTTPMethod
     const path = req.params[0]
-
-    if (!HTTP_METHODS.includes(method as HTTPMethod)) {
+    // Validate method
+    if (!HTTP_METHODS.includes(method)) {
       res.status(400).json({ error: 'Invalid method' })
     }
 
-    const mock: Mock = {
-      method,
-      path,
-      response: {
-        status: req.body.response?.status ?? 200,
-        headers: req.body.response?.headers ?? [],
-        data: req.body.response?.data ?? null,
-      },
-    }
-
-    const existing = findMock(mock.path, mock.method)
+    const existing = moxyApi.setMock(path, method, req.body.response || {})
     if (existing) {
-      res.status(409).end()
+      // If mock overwritten, return 204
+      res.status(204).end()
     } else {
-      mocks.push(mock)
+      // If new mock, return 201
       res.status(201).end()
     }
   })
@@ -200,20 +191,27 @@ export default function moxy(config?: {
     setMock: <G>(
       path: string,
       method: HTTPMethod,
-      response: MockResponse<G>
+      response: MockResponse<G> // Improve this
     ) => {
-      const existing = findMock(path, method)
-      if (existing) {
-        // Remove existing mock and replace it
-        mocks = mocks.filter((m) => m !== existing)
-      } else {
-        // Add new mock
-        mocks.push({
-          method,
-          path,
-          response,
-        })
+      const existingMock = findMock(path, method)
+
+      if (existingMock) {
+        // Remove existing mock
+        mocks = mocks.filter((m) => m !== existingMock)
       }
+
+      // Add new mock
+      mocks.push({
+        method,
+        path,
+        response: {
+          status: response.status ?? 200,
+          headers: response.headers ?? [],
+          data: response.data ?? null,
+        },
+      })
+
+      return Boolean(existingMock)
     },
   }
 

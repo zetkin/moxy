@@ -8,6 +8,7 @@ describe('Set mock', () => {
    *
    * - Set mock on each method
    * - That a mocked request has `true` in the log
+   * - That you can reset an existing mock
    */
 
   describe('with HTTP', () => {
@@ -48,6 +49,27 @@ describe('Set mock', () => {
       await stop()
     })
 
+    test('can override a mock', async () => {
+      const { start, stop } = moxy({ port: port() })
+      start()
+
+      const setMockRes = await setMockReq('/login', 'get', {
+        status: 501,
+      })
+      expect(setMockRes.status).toEqual(201) // Created
+
+      const res = await fetch(apiUrl(`/login`))
+      expect(res.status).toEqual(501)
+
+      const resetMockRes = await setMockReq('/login', 'get', { status: 204 })
+      expect(resetMockRes.status).toEqual(204) // Reset
+
+      const resAfterReset = await fetch(apiUrl(`/login`))
+      expect(resAfterReset.status).toEqual(204)
+
+      await stop()
+    })
+
     describe('returns error status', () => {
       test('when invalid method passed', async () => {
         const { start, stop, log } = moxy({ port: port() })
@@ -63,7 +85,5 @@ describe('Set mock', () => {
     })
   })
 
-  describe('with .setMock()', () => {
-    test('throws an error if the user attempts to set a mock on the home route', async () => {})
-  })
+  describe('with .setMock()', () => {})
 })

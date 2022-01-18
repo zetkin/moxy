@@ -23,7 +23,7 @@ export interface Moxy {
     path: string,
     method: HTTPMethod,
     response: MockResponse<G>
-  ) => void
+  ) => boolean
 }
 
 // Mocks as they are stored in the list of mocks
