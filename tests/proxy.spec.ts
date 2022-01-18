@@ -48,7 +48,7 @@ describe('Moxy proxy functionality', () => {
     startTarget()
     startMoxy()
 
-    // Set a mock (get request on home route)
+    // Set a mock (get request)
     await fetch(apiUrl('/some_url/_mocks/get'), {
       method: 'PUT',
       body: JSON.stringify({ status: 411 }),

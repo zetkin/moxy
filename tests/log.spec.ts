@@ -109,9 +109,6 @@ test('Requests to moxy server are not stored in request log', async () => {
   start()
   // Set mock on path
   await fetch(apiUrl('/random_url/_mocks/get'), {
-    body: JSON.stringify({
-      status: 200,
-    }),
     method: 'PUT',
   })
   // Make request to path
