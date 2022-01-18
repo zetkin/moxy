@@ -77,24 +77,19 @@ export default function moxy(config?: {
 
   // Delete single path-method mock
   app.delete(RES_MOCK_REGEX, (req, res) => {
-    const existing = findMock(req.params[0], req.params[1])
-    if (existing) {
-      mocks = mocks.filter((m) => m !== existing)
-      res.status(204).end()
-    } else {
-      res.status(404).end()
-    }
+    moxyApi.removeMock(req.params[0], req.params[1] as HTTPMethod)
+    res.status(204).end()
   })
 
   // Delete all mocks from a path
   app.delete(RES_MOCKS_REGEX, (req, res) => {
-    mocks = mocks.filter((m) => m.path !== req.params[0])
+    moxyApi.removeMock(req.params[0])
     res.status(204).end()
   })
 
   // Delete all mocks
   app.delete('/_mocks', (req, res) => {
-    mocks = []
+    moxyApi.removeMock()
     res.status(204).end()
   })
 
@@ -223,8 +218,8 @@ export default function moxy(config?: {
     },
     removeMock: (path?: string, method?: HTTPMethod) => {
       if (path && method) {
-        const existing = findMock(path, method)
-        mocks = mocks.filter((mock) => mock !== existing)
+        const existingMock = findMock(path, method)
+        mocks = mocks.filter((mock) => mock !== existingMock)
       } else if (path) {
         mocks = mocks.filter((mock) => mock.path !== path)
       } else {
