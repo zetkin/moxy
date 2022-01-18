@@ -10,6 +10,7 @@ declare global {
 
 export const HTTP_METHODS = ['get', 'post', 'put', 'patch', 'delete'] as const
 export type HTTPMethod = typeof HTTP_METHODS[number]
+
 export type HTTPHeaders =
   | Record<string, string | string[] | undefined>
   | string[][]
@@ -17,6 +18,7 @@ export type HTTPHeaders =
 export interface Moxy {
   start: () => Server
   stop: () => Promise<void>
+  mocks: (path?: string) => Mock[]
   log: (path?: string) => Log
   clearLog: () => void
   setMock: <G>(
@@ -24,6 +26,7 @@ export interface Moxy {
     method?: HTTPMethod,
     response?: MockResponse<G>
   ) => boolean
+  removeMock: (path?: string, method?: HTTPMethod) => void
 }
 
 // Mocks as they are stored in the list of mocks

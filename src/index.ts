@@ -88,7 +88,7 @@ export default function moxy(config?: {
 
   // Delete all mocks from a path
   app.delete(RES_MOCKS_REGEX, (req, res) => {
-    mocks = mocks.filter((m) => m.path !== req.path)
+    mocks = mocks.filter((m) => m.path !== req.params[0])
     res.status(204).end()
   })
 
@@ -181,6 +181,9 @@ export default function moxy(config?: {
         server.close(() => resolve())
       })
     },
+    mocks: (path?: string) => {
+      return path ? mocks.filter((mock) => mock.path === path) : mocks
+    },
     log: (path?: string) => {
       if (path) {
         return {
@@ -217,6 +220,9 @@ export default function moxy(config?: {
       })
 
       return Boolean(existingMock)
+    },
+    removeMock: (path?: string, method?: HTTPMethod) => {
+      return
     },
   }
 

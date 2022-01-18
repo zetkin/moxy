@@ -13,7 +13,7 @@ export const apiUrl = (path: string = '') => {
 /**
  * Wrapper for making the request to create a mock using HTTP. Returns a Response.
  *
- * This is similar to a function a user might write to handle setting mocks
+ * This is similar to a function a user might write.
  */
 export const setMockReq = async (
   path: string,
@@ -26,6 +26,24 @@ export const setMockReq = async (
     body: JSON.stringify({
       response,
     }),
+  })
+  return res as unknown as Response
+}
+
+/**
+ * Wrapper for making the request to remove a mock using HTTP.
+ *
+ * This is similar to a function a user might write.
+ */
+export const removeMockReq = async (
+  path?: string,
+  method?: HTTPMethod
+): Promise<Response> => {
+  const url = apiUrl(
+    (path ? path : '') + '/_mocks' + (method ? `/${method}` : '')
+  )
+  const res = await fetch(url, {
+    method: 'DELETE',
   })
   return res as unknown as Response
 }
