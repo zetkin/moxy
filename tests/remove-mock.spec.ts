@@ -1,6 +1,5 @@
-import fetch from 'node-fetch'
 import moxy from '../src/index'
-import { apiUrl, port, removeMockReq, setMockReq } from '../src/testing/utils'
+import { port, removeMockReq } from '../src/testing/utils'
 
 describe('Remove mock', () => {
   describe('with HTTP', () => {

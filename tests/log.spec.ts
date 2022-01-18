@@ -78,7 +78,7 @@ describe('Retrieve request log', () => {
 
 describe('Clear entire request log', () => {
   test('with HTTP DELETE request', async () => {
-    const { start, stop } = moxy({ port: port() })
+    const { start, stop, log } = moxy({ port: port() })
     start()
     await fetch(apiUrl('/random_url'))
     await fetch(apiUrl('/sensible_url'))
@@ -86,9 +86,7 @@ describe('Clear entire request log', () => {
       method: 'DELETE',
     })
     expect(deleteLogRes.status).toEqual(204)
-    const logRes = await fetch(apiUrl('/_log'))
-    const body = (await logRes.json()) as Log
-    expect(body.log.length).toEqual(0)
+    expect(log().log.length).toEqual(0)
     await stop()
   })
 
@@ -104,13 +102,10 @@ describe('Clear entire request log', () => {
 })
 
 test('Requests to moxy server are not stored in request log', async () => {
-  // TODO: rework to use only js api
-  const { start, stop, log } = moxy({ port: port() })
+  const { start, stop, log, setMock } = moxy({ port: port() })
   start()
   // Set mock on path
-  await fetch(apiUrl('/random_url/_mocks/get'), {
-    method: 'PUT',
-  })
+  await setMock('/random_url/_mocks/get', 'put')
   // Make request to path
   await fetch(apiUrl('/random_url'))
   // Only the request to /random_url is logged, not the request to _mocks

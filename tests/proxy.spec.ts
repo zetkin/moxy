@@ -29,7 +29,6 @@ describe('Moxy proxy functionality', () => {
   })
 
   test('check that mocked endpoints DO NOT forward', async () => {
-    // TODO: Rework to Javascript API
     const {
       start: startTarget,
       stop: stopTarget,
@@ -40,6 +39,7 @@ describe('Moxy proxy functionality', () => {
       start: startMoxy,
       stop: stopMoxy,
       log: moxyLog,
+      setMock,
     } = moxy({
       port: port(),
       forward: `http://localhost:${port(5000)}`,
@@ -48,16 +48,11 @@ describe('Moxy proxy functionality', () => {
     startTarget()
     startMoxy()
 
-    // Set a mock (get request)
-    await fetch(apiUrl('/some_url/_mocks/get'), {
-      method: 'PUT',
-      body: JSON.stringify({ status: 411 }),
-      headers: [['Content-Type', 'application/json']],
-    })
-
-    // Make request to moxy
+    // Set mock and make request to moxy
+    await setMock('/some_url', 'get')
     await fetch(apiUrl('/some_url'))
 
+    // Expect request logged in moxy, not forwarded
     expect(moxyLog().log.length).toEqual(1)
     expect(targetLog().log.length).toEqual(0)
 

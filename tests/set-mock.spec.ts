@@ -3,14 +3,6 @@ import moxy from '../src/index'
 import { apiUrl, port, setMockReq } from '../src/testing/utils'
 
 describe('Set mock', () => {
-  /**
-   * Test in general
-   *
-   * - Set mock on each method
-   * - That a mocked request has `true` in the log
-   * - That you can reset an existing mock
-   */
-
   describe('with HTTP', () => {
     test('with default mock response (200 status, no body, no custom headers)', async () => {
       const { start, stop } = moxy({ port: port() })
@@ -67,7 +59,7 @@ describe('Set mock', () => {
 
     describe('returns error status', () => {
       test('when invalid method passed', async () => {
-        const { start, stop, log } = moxy({ port: port() })
+        const { start, stop } = moxy({ port: port() })
         start()
         const setMockRes = await fetch(apiUrl('/login/_mocks/poet'), {
           method: 'PUT',
