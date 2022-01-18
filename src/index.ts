@@ -3,7 +3,14 @@ import cors from 'cors'
 import express from 'express'
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware'
 import { Server } from 'node:http'
-import { Moxy, Mock, LoggedRequest } from './types'
+import {
+  Moxy,
+  Mock,
+  LoggedRequest,
+  HTTPMethod,
+  MockResponse,
+  HTTP_METHODS,
+} from './types'
 
 const RES_MOCK_REGEX = /(\/.+)\/_mocks\/([a-z]+)$/
 const RES_MOCKS_REGEX = /(\/.+)\/_mocks$/
@@ -46,9 +53,16 @@ export default function moxy(config?: {
   })
 
   app.put(RES_MOCK_REGEX, (req, res) => {
+    const method = req.params[1].toLowerCase()
+    const path = req.params[0]
+
+    if (!HTTP_METHODS.includes(method as HTTPMethod)) {
+      res.status(400).json({ error: 'Invalid method' })
+    }
+
     const mock: Mock = {
-      method: req.params[1].toLowerCase(),
-      path: req.params[0],
+      method,
+      path,
       response: {
         status: req.body.response?.status ?? 200,
         headers: req.body.response?.headers ?? [],
@@ -171,9 +185,6 @@ export default function moxy(config?: {
         server.close(() => resolve())
       })
     },
-    clearLog: () => {
-      requestLog = []
-    },
     log: (path?: string) => {
       if (path) {
         return {
@@ -182,6 +193,27 @@ export default function moxy(config?: {
         }
       }
       return { log: requestLog }
+    },
+    clearLog: () => {
+      requestLog = []
+    },
+    setMock: <G>(
+      path: string,
+      method: HTTPMethod,
+      response: MockResponse<G>
+    ) => {
+      const existing = findMock(path, method)
+      if (existing) {
+        // Remove existing mock and replace it
+        mocks = mocks.filter((m) => m !== existing)
+      } else {
+        // Add new mock
+        mocks.push({
+          method,
+          path,
+          response,
+        })
+      }
     },
   }
 
