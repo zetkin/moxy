@@ -34,10 +34,8 @@ export interface Mock<ResData = unknown> {
   method: string
   path: string
   response: {
-    status: number
-    headers: HTTPHeaders
-    data?: ResData
-  }
+    data: ResData | null
+  } & Required<MockResponse>
 }
 
 // Used to set what will be returned from the mocked endpoint
@@ -46,7 +44,6 @@ export interface MockResponse<ResData = unknown> {
   headers?: HTTPHeaders
   status?: number
 }
-
 export interface Log<ReqData = unknown, ResData = unknown> {
   log: LoggedRequest<ReqData, ResData>[]
   path?: string
