@@ -181,11 +181,15 @@ export default function moxy(config?: {
     mocks: (path?: string) => {
       return path ? mocks.filter((mock) => mock.path === path) : mocks
     },
-    log: (path?: string) => {
+    log: (path?: string, method?: HTTPMethod) => {
+      let log = requestLog
       if (path) {
-        return requestLog.filter((entry) => entry.path === path)
+        log = log.filter((entry) => entry.path === path)
       }
-      return requestLog
+      if (method) {
+        log = log.filter((entry) => entry.method === method)
+      }
+      return log
     },
     clearLog: () => {
       requestLog = []
