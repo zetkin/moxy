@@ -105,11 +105,29 @@ test('Requests to moxy server are not stored in request log', async () => {
   const { start, stop, log, setMock } = moxy({ port: port() })
   start()
   // Set mock on path
-  await setMock('/random_url/_mocks/get', 'put')
+  await setMock('/random_url', 'get')
   // Make request to path
   await fetch(apiUrl('/random_url'))
   // Only the request to /random_url is logged, not the request to _mocks
   expect(log().log.length).toEqual(1)
   expect(log().log[0].path).toEqual('/random_url')
+  await stop()
+})
+
+test('Requests made to mocked endpoints are stored correctly', async () => {
+  const { start, stop, log, setMock } = moxy({ port: port() })
+  start()
+  setMock('/random_url', 'post', {
+    status: 201,
+    data: {
+      key: "value"
+    }
+  })
+  await fetch(apiUrl('/random_url'), {
+    method: "POST"
+  })
+  expect(log().log[0].mocked).toEqual(true)
+  expect(log().log[0].response.data).toEqual({key: "value"})
+  expect(log().log[0].response.status).toEqual(201)
   await stop()
 })
