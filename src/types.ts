@@ -24,7 +24,7 @@ export interface Moxy {
   setMock: <G>(
     path: string,
     method?: HTTPMethod,
-    response?: MockResponse<G>
+    response?: MockResponseSetter<G>
   ) => boolean
   removeMock: (path?: string, method?: HTTPMethod) => void
 }
@@ -33,17 +33,23 @@ export interface Moxy {
 export interface Mock<ResData = unknown> {
   method: string
   path: string
-  response: {
-    data: ResData | null
-  } & Required<MockResponse>
+  response: MockResponse<ResData>
 }
 
-// Used to set what will be returned from the mocked endpoint
+// The mock response as it's stored in a created mock
 export interface MockResponse<ResData = unknown> {
+  data: ResData | null
+  headers: HTTPHeaders
+  status: number
+}
+
+// For setting the mock response
+export interface MockResponseSetter<ResData = unknown> {
   data?: ResData
   headers?: HTTPHeaders
   status?: number
 }
+
 export interface Log<ReqData = unknown, ResData = unknown> {
   log: LoggedRequest<ReqData, ResData>[]
   path?: string

@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import { HTTPMethod, MockResponse } from '../src/types'
+import { HTTPMethod, MockResponseSetter } from '../src/types'
 
 export const port = (basePort: number = 3000): number => {
   const workerId = parseInt(process.env.JEST_WORKER_ID) || 0
@@ -18,7 +18,7 @@ export const apiUrl = (path: string = '') => {
 export const setMockReq = async (
   path: string,
   method: HTTPMethod = 'get',
-  response?: MockResponse
+  response?: MockResponseSetter
 ): Promise<Response> => {
   const res = await fetch(apiUrl(path + `/_mocks/${method}`), {
     headers: [['Content-Type', 'application/json']],

@@ -8,7 +8,7 @@ import {
   Mock,
   LoggedRequest,
   HTTPMethod,
-  MockResponse,
+  MockResponseSetter,
   HTTP_METHODS,
 } from './types'
 
@@ -63,7 +63,7 @@ export default function moxy(config?: {
     const existing = moxyApi.setMock(
       path,
       method,
-      req.body.response as MockResponse | undefined
+      req.body.response as MockResponseSetter | undefined
     )
 
     if (existing) {
@@ -191,10 +191,10 @@ export default function moxy(config?: {
     clearLog: () => {
       requestLog = []
     },
-    setMock: <G>(
+    setMock: <ResData>(
       path: string,
       method: HTTPMethod = 'get',
-      response: MockResponse<G> = {}
+      response: MockResponseSetter<ResData> = {}
     ) => {
       const existingMock = findMock(path, method)
 
