@@ -39,12 +39,12 @@ export default function moxy(config?: {
   app.use(cors())
 
   app.get('/_log', (req, res) => {
-    res.json(moxyApi.log())
+    res.json({ log: moxyApi.log() })
   })
 
   app.get(/(\/.+)\/_log$/, (req, res) => {
     const path = req.params[0]
-    res.json(moxyApi.log(path))
+    res.json({ log: moxyApi.log(path), path })
   })
 
   app.delete('/_log', (req, res) => {
@@ -60,17 +60,19 @@ export default function moxy(config?: {
       res.status(400).json({ error: 'Invalid method' })
     }
 
-    const existing = moxyApi.setMock(
+    const existingMock = findMock(path, method)
+
+    moxyApi.setMock(
       path,
       method,
       req.body.response as MockResponseSetter | undefined
     )
 
-    if (existing) {
-      // If mock overwritten, return 204
-      res.status(204).end()
+    if (existingMock) {
+      // If mock overwritten
+      res.status(200).end()
     } else {
-      // If new mock, return 201
+      // If new mock
       res.status(201).end()
     }
   })
@@ -181,12 +183,9 @@ export default function moxy(config?: {
     },
     log: (path?: string) => {
       if (path) {
-        return {
-          path,
-          log: requestLog.filter((entry) => entry.path === path),
-        }
+        return requestLog.filter((entry) => entry.path === path)
       }
-      return { log: requestLog }
+      return requestLog
     },
     clearLog: () => {
       requestLog = []
@@ -214,7 +213,7 @@ export default function moxy(config?: {
         },
       })
 
-      return Boolean(existingMock)
+      return () => moxyApi.removeMock(path, method)
     },
     removeMock: (path?: string, method?: HTTPMethod) => {
       if (path && method) {

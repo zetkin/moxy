@@ -19,13 +19,13 @@ export interface Moxy {
   start: () => Server
   stop: () => Promise<void>
   mocks: (path?: string) => Mock[]
-  log: (path?: string) => Log
+  log: (path?: string) => Log['log']
   clearLog: () => void
   setMock: <G>(
     path: string,
     method?: HTTPMethod,
     response?: MockResponseSetter<G>
-  ) => boolean
+  ) => () => void
   removeMock: (path?: string, method?: HTTPMethod) => void
 }
 
