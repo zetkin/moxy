@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Run unit tests
-        run: yarn test
+        run: yarn test --verbose --coverage
   check-types:
     runs-on: ubuntu-latest
     steps:
