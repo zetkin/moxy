@@ -55,7 +55,38 @@ describe('Retrieve request log', () => {
       await fetch(apiUrl('/other_url'))
       const randomUrlLog = log('/random_url')
       expect(randomUrlLog.length).toEqual(1)
-      expect(randomUrlLog[0].path).toEqual('/random_url') // Logs request made to correct path
+      expect(randomUrlLog[0].path).toEqual('/random_url')
+      await stop()
+    })
+
+    test('returns log of requests made by method', async () => {
+      const { start, stop, log } = moxy({ port: port() })
+      start()
+      await fetch(apiUrl('/random_url'), {
+        method: 'post',
+      })
+      await fetch(apiUrl('/other_url'))
+      const postReqLog = log(undefined, 'post')
+      expect(postReqLog.length).toEqual(1)
+      expect(postReqLog[0].path).toEqual('/random_url') // Logs request made to correct path
+      await stop()
+    })
+
+    test('returns log of requests made by path and method', async () => {
+      const { start, stop, log } = moxy({ port: port() })
+      start()
+      await fetch(apiUrl('/random_url'), {
+        method: 'post',
+      })
+      await fetch(apiUrl('/other_url'), {
+        method: 'post',
+      })
+      await fetch(apiUrl('/other_url'))
+      await fetch(apiUrl('/random_url'))
+      const postReqLog = log('/random_url', 'post')
+      expect(postReqLog.length).toEqual(1)
+      expect(postReqLog[0].path).toEqual('/random_url')
+      expect(postReqLog[0].method).toEqual('POST')
       await stop()
     })
 

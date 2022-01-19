@@ -187,7 +187,7 @@ export default function moxy(config?: {
         log = log.filter((entry) => entry.path === path)
       }
       if (method) {
-        log = log.filter((entry) => entry.method === method)
+        log = log.filter((entry) => entry.method.toLowerCase() === method)
       }
       return log
     },
