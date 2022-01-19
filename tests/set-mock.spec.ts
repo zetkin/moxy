@@ -117,5 +117,17 @@ describe('Set mock', () => {
 
       await stop()
     })
+
+    test('setting a mock returns a function to remove the mock', async () => {
+      const { start, stop, setMock } = moxy({ port: port() })
+      start()
+      const removeLoginMock = setMock(`/login`)
+      const res = await fetch(apiUrl(`/login`))
+      expect(res.status).toEqual(200)
+      removeLoginMock()
+      const resAfterDelete = await fetch(apiUrl(`/login`))
+      expect(resAfterDelete.status).toEqual(404)
+      await stop()
+    })
   })
 })
