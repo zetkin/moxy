@@ -3,12 +3,14 @@
   "version": "1.0.0-dev",
   "description": "Testing, mocking and spying proxy",
   "repository": "https://github.com/zetkin/moxy",
-  "author": "Richard Olsson <richard@zetkin.org",
+  "author": "Zetkin Foundation",
   "license": "MIT",
   "private": false,
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "files": ["/lib"],
+  "files": [
+    "/lib"
+  ],
   "bin": {
     "moxy": "./lib/cli.js"
   },
