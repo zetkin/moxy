@@ -44,7 +44,7 @@ describe('Retrieve request log', () => {
     test('gets an empty log when no requests made', async () => {
       const { start, stop, log } = moxy({ port: port() })
       start()
-      expect(log()).toEqual({ log: [] })
+      expect(log()).toEqual([])
       await stop()
     })
 
@@ -52,10 +52,10 @@ describe('Retrieve request log', () => {
       const { start, stop, log } = moxy({ port: port() })
       start()
       await fetch(apiUrl('/random_url'))
-      const logRes = log('/random_url')
-      expect(logRes.path).toEqual('/random_url')
-      expect(logRes.log.length).toEqual(1)
-      expect(logRes.log[0].path).toEqual('/random_url') // Logs request made to correct path
+      await fetch(apiUrl('/other_url'))
+      const randomUrlLog = log('/random_url')
+      expect(randomUrlLog.length).toEqual(1)
+      expect(randomUrlLog[0].path).toEqual('/random_url') // Logs request made to correct path
       await stop()
     })
 
@@ -64,13 +64,9 @@ describe('Retrieve request log', () => {
       start()
       await fetch(apiUrl('/random_url'))
       await fetch(apiUrl('/sensible_url'))
-      const logRes = log()
-      expect(logRes.path).toBeUndefined()
-      expect(logRes.log.length).toEqual(2)
-      expect(logRes.log.some((log) => log.path === '/random_url')).toBeTruthy()
-      expect(
-        logRes.log.some((log) => log.path === '/sensible_url')
-      ).toBeTruthy()
+      expect(log().length).toEqual(2)
+      expect(log().some((log) => log.path === '/random_url')).toBeTruthy()
+      expect(log().some((log) => log.path === '/sensible_url')).toBeTruthy()
       await stop()
     })
   })
@@ -86,7 +82,7 @@ describe('Clear entire request log', () => {
       method: 'DELETE',
     })
     expect(deleteLogRes.status).toEqual(204)
-    expect(log().log.length).toEqual(0)
+    expect(log().length).toEqual(0)
     await stop()
   })
 
@@ -96,7 +92,7 @@ describe('Clear entire request log', () => {
     await fetch(apiUrl('/random_url'))
     await fetch(apiUrl('/sensible_url'))
     clearLog()
-    expect(log().log.length).toEqual(0)
+    expect(log().length).toEqual(0)
     await stop()
   })
 })
@@ -109,8 +105,8 @@ test('Requests to moxy server are not stored in request log', async () => {
   // Make request to path
   await fetch(apiUrl('/random_url'))
   // Only the request to /random_url is logged, not the request to _mocks
-  expect(log().log.length).toEqual(1)
-  expect(log().log[0].path).toEqual('/random_url')
+  expect(log().length).toEqual(1)
+  expect(log()[0].path).toEqual('/random_url')
   await stop()
 })
 
@@ -126,8 +122,8 @@ test('Requests made to mocked endpoints are stored correctly', async () => {
   await fetch(apiUrl('/random_url'), {
     method: 'POST',
   })
-  expect(log().log[0].mocked).toEqual(true)
-  expect(log().log[0].response.data).toEqual({ key: 'value' })
-  expect(log().log[0].response.status).toEqual(201)
+  expect(log()[0].mocked).toEqual(true)
+  expect(log()[0].response.data).toEqual({ key: 'value' })
+  expect(log()[0].response.status).toEqual(201)
   await stop()
 })
