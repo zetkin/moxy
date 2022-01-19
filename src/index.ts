@@ -233,3 +233,5 @@ export default function moxy(config?: {
 
   return moxyApi
 }
+
+export * from './types'
