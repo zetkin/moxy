@@ -49,7 +49,7 @@ describe('Set mock', () => {
       expect(res.status).toEqual(501)
 
       const resetMockRes = await setMockReq('/login', 'get', { status: 204 })
-      expect(resetMockRes.status).toEqual(204) // Reset
+      expect(resetMockRes.status).toEqual(200) // Reset
 
       const resAfterReset = await fetch(apiUrl(`/login`))
       expect(resAfterReset.status).toEqual(204)
@@ -103,16 +103,14 @@ describe('Set mock', () => {
       const { start, stop, setMock } = moxy({ port: port() })
       start()
 
-      let hadPreviousMock = setMock('/login', 'get', {
+      setMock('/login', 'get', {
         status: 501,
       })
-      expect(hadPreviousMock).toEqual(false)
 
       const res = await fetch(apiUrl(`/login`))
       expect(res.status).toEqual(501)
 
-      hadPreviousMock = setMock('/login', 'get', { status: 204 })
-      expect(hadPreviousMock).toEqual(true)
+      setMock('/login', 'get', { status: 204 })
 
       const resAfterReset = await fetch(apiUrl(`/login`))
       expect(resAfterReset.status).toEqual(204)

@@ -22,7 +22,7 @@ describe('Moxy proxy functionality', () => {
     await fetch(apiUrl())
 
     // Expect request to have been made at target
-    expect(targetLog().log.length).toEqual(1)
+    expect(targetLog().length).toEqual(1)
 
     await stopTarget()
     await stopMoxy()
@@ -53,8 +53,8 @@ describe('Moxy proxy functionality', () => {
     await fetch(apiUrl('/some_url'))
 
     // Expect request logged in moxy, not forwarded
-    expect(moxyLog().log.length).toEqual(1)
-    expect(targetLog().log.length).toEqual(0)
+    expect(moxyLog().length).toEqual(1)
+    expect(targetLog().length).toEqual(0)
 
     await stopTarget()
     await stopMoxy()
