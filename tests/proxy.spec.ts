@@ -1,6 +1,6 @@
 import moxy from '../src/index'
 import fetch from 'node-fetch'
-import { apiUrl, port } from '../src/testing/utils'
+import { apiUrl, port } from './utils'
 
 describe('Moxy proxy functionality', () => {
   test('check that unmocked endpoints DO forward', async () => {

@@ -1,7 +1,7 @@
 import moxy from '../src/index'
 import fetch from 'node-fetch'
 import { Log } from '../src/types'
-import { apiUrl, port } from '../src/testing/utils'
+import { apiUrl, port } from './utils'
 
 describe('Retrieve request log', () => {
   describe('with HTTP', () => {

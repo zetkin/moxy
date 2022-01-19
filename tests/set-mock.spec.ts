@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
 import moxy from '../src/index'
-import { apiUrl, port, setMockReq } from '../src/testing/utils'
+import { apiUrl, port, setMockReq } from './utils'
 
 describe('Set mock', () => {
   describe('with HTTP', () => {

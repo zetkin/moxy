@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import { HTTPMethod, MockResponse } from '../types'
+import { HTTPMethod, MockResponse } from '../src/types'
 
 export const port = (basePort: number = 3000): number => {
   const workerId = parseInt(process.env.JEST_WORKER_ID) || 0

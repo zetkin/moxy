@@ -30,10 +30,14 @@ export interface Moxy {
 }
 
 // Mocks as they are stored in the list of mocks
-export interface Mock {
+export interface Mock<ResData = unknown> {
   method: string
   path: string
-  response: MockResponse
+  response: {
+    status: number
+    headers: HTTPHeaders
+    data?: ResData
+  }
 }
 
 // Used to set what will be returned from the mocked endpoint

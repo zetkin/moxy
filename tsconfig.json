@@ -7,18 +7,11 @@
     "allowJs": true,
     "outDir": "lib",
     "rootDir": "src",
-    "strict": false,
+    "strict": true,
     "noImplicitAny": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "exclude": [
-    "node_modules",
-    "tests",
-    "src/testing",
-    "coverage",
-    "jest.config.js",
-    "lib"
-  ]
+  "exclude": ["node_modules", "lib", "tests", "coverage", "jest.config.js"]
 }

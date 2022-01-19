@@ -1,5 +1,5 @@
 import moxy from '../src/index'
-import { port, removeMockReq } from '../src/testing/utils'
+import { port, removeMockReq } from './utils'
 
 describe('Remove mock', () => {
   describe('with HTTP', () => {
