@@ -120,14 +120,14 @@ test('Requests made to mocked endpoints are stored correctly', async () => {
   setMock('/random_url', 'post', {
     status: 201,
     data: {
-      key: "value"
-    }
+      key: 'value',
+    },
   })
   await fetch(apiUrl('/random_url'), {
-    method: "POST"
+    method: 'POST',
   })
   expect(log().log[0].mocked).toEqual(true)
-  expect(log().log[0].response.data).toEqual({key: "value"})
+  expect(log().log[0].response.data).toEqual({ key: 'value' })
   expect(log().log[0].response.status).toEqual(201)
   await stop()
 })
