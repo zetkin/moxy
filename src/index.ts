@@ -178,18 +178,22 @@ export default function moxy(config?: {
         server.close(() => resolve())
       })
     },
-    mocks: (path?: string) => {
-      return path ? mocks.filter((mock) => mock.path === path) : mocks
+    mocks: <ResData>(path?: string): Mock<ResData>[] => {
+      let myMocks = mocks as Mock<ResData>[]
+      if (path) {
+        myMocks = myMocks.filter(mock => mock.path === path)
+      }
+      return myMocks
     },
     log: <ReqData, ResData>(path?: string, method?: HTTPMethod) => {
-      let log = requestLog
+      let log = requestLog as LoggedRequest<ReqData, ResData>[]
       if (path) {
         log = log.filter((entry) => entry.path === path)
       }
       if (method) {
         log = log.filter((entry) => entry.method.toLowerCase() === method)
       }
-      return log as LoggedRequest<ReqData, ResData>[]
+      return log
     },
     clearLog: () => {
       requestLog = []
