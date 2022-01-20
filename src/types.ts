@@ -19,7 +19,7 @@ export interface Moxy {
   start: () => Server
   stop: () => Promise<void>
   mocks: (path?: string) => Mock[]
-  log: (path?: string, method?: HTTPMethod) => Log['log']
+  log: <G = unknown, T = unknown>(path?: string, method?: HTTPMethod) => LoggedRequest<G, T>[]
   clearLog: () => void
   setMock: <G>(
     path: string,

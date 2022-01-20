@@ -181,7 +181,7 @@ export default function moxy(config?: {
     mocks: (path?: string) => {
       return path ? mocks.filter((mock) => mock.path === path) : mocks
     },
-    log: (path?: string, method?: HTTPMethod) => {
+    log: <ReqData, ResData>(path?: string, method?: HTTPMethod) => {
       let log = requestLog
       if (path) {
         log = log.filter((entry) => entry.path === path)
@@ -189,7 +189,7 @@ export default function moxy(config?: {
       if (method) {
         log = log.filter((entry) => entry.method.toLowerCase() === method)
       }
-      return log
+      return log as LoggedRequest<ReqData, ResData>[]
     },
     clearLog: () => {
       requestLog = []
