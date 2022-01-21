@@ -18,9 +18,12 @@ export type HTTPHeaders =
 export interface Moxy {
   start: () => Server
   stop: () => Promise<void>
-  mocks: (path?: string) => Mock[]
-  log: (path?: string, method?: HTTPMethod) => Log['log']
+  mocks: <G>(path?: string) => Mock<G>[]
   clearLog: () => void
+  log: <G = unknown, T = unknown>(
+    path?: string,
+    method?: HTTPMethod
+  ) => LoggedRequest<G, T>[]
   setMock: <G>(
     path: string,
     method?: HTTPMethod,
