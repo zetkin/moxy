@@ -121,12 +121,48 @@ describe('Set mock', () => {
     test('setting a mock returns a function to remove the mock', async () => {
       const { start, stop, setMock } = moxy({ port: port() })
       start()
-      const removeLoginMock = setMock(`/login`)
+      const { removeMock } = setMock(`/login`)
       const res = await fetch(apiUrl(`/login`))
       expect(res.status).toEqual(200)
-      removeLoginMock()
+      removeMock()
       const resAfterDelete = await fetch(apiUrl(`/login`))
       expect(resAfterDelete.status).toEqual(404)
+      await stop()
+    })
+
+    test('setting a mock returns a function to log all requests to mocked endpoint', async () => {
+      const { start, stop, setMock } = moxy({ port: port() })
+      start()
+
+      const { log } = setMock(`/login`, 'post', {
+        data: { session: 'some-token' },
+      })
+
+      // 2 post requests to /login 
+      await fetch(apiUrl(`/login`), {
+        method: 'post',
+        headers: [['content-type', "application/json"]],
+        body: JSON.stringify({ usernamd: 'Jerry', password: 'Superman' }),
+      })
+      await fetch(apiUrl(`/login`), {
+        method: 'post',
+        headers: [['content-type', "application/json"]],
+        body: JSON.stringify({ username: 'George', password: 'BOSCO' }),
+      })
+
+      // Get request to same endpoint
+      await fetch(apiUrl('/logout'))
+      // Request to different endpoint
+      await fetch(apiUrl('/random_url'))
+
+      // Only logs post requests to /login
+      expect(log().length).toEqual(2)
+      expect(log().every((log) => log.method === 'POST')).toEqual(true)
+      expect(log().every((log) => log.path === '/login')).toEqual(true)
+      // Test types and req/res data
+      expect(log().every(req => req.response.data?.session === 'some-token')).toEqual(true)
+      expect(log<{username: string, password: string}>().some(req => req.data?.username === 'George')).toEqual(true)
+
       await stop()
     })
   })
