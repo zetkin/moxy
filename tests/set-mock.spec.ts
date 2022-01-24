@@ -138,15 +138,15 @@ describe('Set mock', () => {
         data: { session: 'some-token' },
       })
 
-      // 2 post requests to /login 
+      // 2 post requests to /login
       await fetch(apiUrl(`/login`), {
         method: 'post',
-        headers: [['content-type', "application/json"]],
+        headers: [['content-type', 'application/json']],
         body: JSON.stringify({ usernamd: 'Jerry', password: 'Superman' }),
       })
       await fetch(apiUrl(`/login`), {
         method: 'post',
-        headers: [['content-type', "application/json"]],
+        headers: [['content-type', 'application/json']],
         body: JSON.stringify({ username: 'George', password: 'BOSCO' }),
       })
 
@@ -160,8 +160,14 @@ describe('Set mock', () => {
       expect(log().every((log) => log.method === 'POST')).toEqual(true)
       expect(log().every((log) => log.path === '/login')).toEqual(true)
       // Test types and req/res data
-      expect(log().every(req => req.response.data?.session === 'some-token')).toEqual(true)
-      expect(log<{username: string, password: string}>().some(req => req.data?.username === 'George')).toEqual(true)
+      expect(
+        log().every((req) => req.response.data?.session === 'some-token')
+      ).toEqual(true)
+      expect(
+        log<{ username: string; password: string }>().some(
+          (req) => req.data?.username === 'George'
+        )
+      ).toEqual(true)
 
       await stop()
     })
