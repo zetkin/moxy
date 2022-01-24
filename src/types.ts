@@ -28,7 +28,10 @@ export interface Moxy {
     path: string,
     method?: HTTPMethod,
     response?: MockResponseSetter<G>
-  ) => () => void
+  ) => {
+    removeMock: () => void
+    log: <T>() => LoggedRequest<T, G>[]
+  }
   removeMock: (path?: string, method?: HTTPMethod) => void
 }
 

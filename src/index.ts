@@ -181,7 +181,7 @@ export default function moxy(config?: {
     mocks: <ResData>(path?: string): Mock<ResData>[] => {
       let myMocks = mocks as Mock<ResData>[]
       if (path) {
-        myMocks = myMocks.filter(mock => mock.path === path)
+        myMocks = myMocks.filter((mock) => mock.path === path)
       }
       return myMocks
     },
@@ -221,7 +221,10 @@ export default function moxy(config?: {
         },
       })
 
-      return () => moxyApi.removeMock(path, method)
+      return {
+        removeMock: () => moxyApi.removeMock(path, method),
+        log: <ReqData>() => moxyApi.log<ReqData, ResData>(path, method),
+      }
     },
     removeMock: (path?: string, method?: HTTPMethod) => {
       if (path && method) {
