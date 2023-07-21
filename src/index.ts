@@ -36,6 +36,7 @@ export default function moxy(config?: {
   }
 
   app.use(bodyParser.json())
+  app.use(bodyParser.urlencoded())
   app.use(cors())
 
   app.get('/_log', (req, res) => {
@@ -102,7 +103,7 @@ export default function moxy(config?: {
       method: req.method,
       path: req.path,
       mocked: false,
-      headers: {},
+      headers: { ...req.headers },
       response: {
         status: 0,
         headers: {},

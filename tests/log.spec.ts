@@ -1,34 +1,43 @@
 import moxy from '../src/index'
 import fetch from 'node-fetch'
-import { Log } from '../src/types'
+import { Log, Moxy } from '../src/types'
 import { apiUrl, port } from './utils'
 
 describe('Retrieve request log', () => {
+  let proxy: Moxy;
+
+  beforeEach(() => {
+    proxy = moxy({ port: port() });
+  });
+
+  afterEach(async () => {
+    try {
+      await proxy.stop();
+    } catch {
+      // No need to do anything
+    }
+  });
+
   describe('with HTTP', () => {
     test('gets an empty log when no requests made', async () => {
-      const { start, stop } = moxy({ port: port() })
-      start()
+      proxy.start()
       const res = await fetch(apiUrl('/_log'))
       const body = await res.json()
       expect(body).toEqual({ log: [] })
-      await stop()
     })
 
     test('returns log of requests made on a single path', async () => {
-      const { start, stop } = moxy({ port: port() })
-      start()
+      proxy.start()
       await fetch(apiUrl('/random_url'))
       const logRes = await fetch(apiUrl('/random_url/_log'))
       const body = (await logRes.json()) as Log
       expect(body.path).toEqual('/random_url')
       expect(body.log.length).toEqual(1)
       expect(body.log[0].path).toEqual('/random_url') // Logs request made to correct path
-      await stop()
     })
 
     test('returns log of requests made on all paths', async () => {
-      const { start, stop } = moxy({ port: port() })
-      start()
+      proxy.start()
       await fetch(apiUrl('/random_url'))
       await fetch(apiUrl('/sensible_url'))
       const logRes = await fetch(apiUrl('/_log'))
@@ -36,31 +45,76 @@ describe('Retrieve request log', () => {
       expect(body.log.length).toEqual(2)
       expect(body.log.some((log) => log.path === '/random_url')).toBeTruthy()
       expect(body.log.some((log) => log.path === '/sensible_url')).toBeTruthy()
-      await stop()
     })
   })
 
   describe('with .log()', () => {
     test('gets an empty log when no requests made', async () => {
-      const { start, stop, log } = moxy({ port: port() })
+      const { start, log } = proxy
       start()
       expect(log()).toEqual([])
-      await stop()
     })
 
+    test('includes all relevant request data', async () => {
+      const { start, log } = proxy
+      start();
+      await fetch(apiUrl('/random_url'), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Dummy-Header': 'dummy-value',
+        },
+        body: JSON.stringify({
+          person: {
+            name: 'Jerry Seinfeld',
+          },
+        }),
+      });
+      const requestLog = log();
+      expect(requestLog[0].path).toEqual('/random_url');
+      expect(requestLog[0].method).toEqual('PUT');
+      expect(requestLog[0].headers).toMatchObject({
+          'content-type': 'application/json',
+          'x-dummy-header': 'dummy-value',
+      });
+      expect(requestLog[0].data).toMatchObject({
+        person: {
+          name: 'Jerry Seinfeld'
+        },
+      });
+    });
+
+    test('handles url-encoded data', async () => {
+      const { start, log } = proxy
+      start();
+      await fetch(apiUrl('/random_url'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-Dummy-Header': 'dummy-value',
+        },
+        body: 'firstName=Jerry&lastName=Seinfeld'
+      });
+      const requestLog = log();
+      expect(requestLog[0].path).toEqual('/random_url');
+      expect(requestLog[0].data).toMatchObject({
+        firstName: 'Jerry',
+        lastName: 'Seinfeld',
+      });
+    });
+
     test('returns log of requests made on a single path', async () => {
-      const { start, stop, log } = moxy({ port: port() })
+      const { start, log } = proxy
       start()
       await fetch(apiUrl('/random_url'))
       await fetch(apiUrl('/other_url'))
       const randomUrlLog = log('/random_url')
       expect(randomUrlLog.length).toEqual(1)
       expect(randomUrlLog[0].path).toEqual('/random_url')
-      await stop()
     })
 
     test('returns log of requests made by method', async () => {
-      const { start, stop, log } = moxy({ port: port() })
+      const { start, log } = proxy
       start()
       await fetch(apiUrl('/random_url'), {
         method: 'post',
@@ -69,11 +123,10 @@ describe('Retrieve request log', () => {
       const postReqLog = log(undefined, 'post')
       expect(postReqLog.length).toEqual(1)
       expect(postReqLog[0].path).toEqual('/random_url') // Logs request made to correct path
-      await stop()
     })
 
     test('returns log of requests made by path and method', async () => {
-      const { start, stop, log } = moxy({ port: port() })
+      const { start, log } = proxy
       start()
       await fetch(apiUrl('/random_url'), {
         method: 'post',
@@ -87,18 +140,16 @@ describe('Retrieve request log', () => {
       expect(postReqLog.length).toEqual(1)
       expect(postReqLog[0].path).toEqual('/random_url')
       expect(postReqLog[0].method).toEqual('POST')
-      await stop()
     })
 
     test('returns log of requests made on all paths', async () => {
-      const { start, stop, log } = moxy({ port: port() })
+      const { start, log } = proxy
       start()
       await fetch(apiUrl('/random_url'))
       await fetch(apiUrl('/sensible_url'))
       expect(log().length).toEqual(2)
       expect(log().some((log) => log.path === '/random_url')).toBeTruthy()
       expect(log().some((log) => log.path === '/sensible_url')).toBeTruthy()
-      await stop()
     })
   })
 })
