@@ -102,7 +102,7 @@ export default function moxy(config?: {
       method: req.method,
       path: req.path,
       mocked: false,
-      headers: {},
+      headers: { ...req.headers },
       response: {
         status: 0,
         headers: {},

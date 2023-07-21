@@ -55,6 +55,35 @@ describe('Retrieve request log', () => {
       expect(log()).toEqual([])
     })
 
+    test('includes all relevant request data', async () => {
+      const { start, log } = proxy
+      start();
+      await fetch(apiUrl('/random_url'), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Dummy-Header': 'dummy-value',
+        },
+        body: JSON.stringify({
+          person: {
+            name: 'Jerry Seinfeld',
+          },
+        }),
+      });
+      const requestLog = log();
+      expect(requestLog[0].path).toEqual('/random_url');
+      expect(requestLog[0].method).toEqual('PUT');
+      expect(requestLog[0].headers).toMatchObject({
+          'content-type': 'application/json',
+          'x-dummy-header': 'dummy-value',
+      });
+      expect(requestLog[0].data).toMatchObject({
+        person: {
+          name: 'Jerry Seinfeld'
+        },
+      });
+    });
+
     test('returns log of requests made on a single path', async () => {
       const { start, log } = proxy
       start()
