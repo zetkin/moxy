@@ -84,6 +84,25 @@ describe('Retrieve request log', () => {
       });
     });
 
+    test('handles url-encoded data', async () => {
+      const { start, log } = proxy
+      start();
+      await fetch(apiUrl('/random_url'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-Dummy-Header': 'dummy-value',
+        },
+        body: 'firstName=Jerry&lastName=Seinfeld'
+      });
+      const requestLog = log();
+      expect(requestLog[0].path).toEqual('/random_url');
+      expect(requestLog[0].data).toMatchObject({
+        firstName: 'Jerry',
+        lastName: 'Seinfeld',
+      });
+    });
+
     test('returns log of requests made on a single path', async () => {
       const { start, log } = proxy
       start()

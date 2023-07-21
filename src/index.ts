@@ -36,6 +36,7 @@ export default function moxy(config?: {
   }
 
   app.use(bodyParser.json())
+  app.use(bodyParser.urlencoded())
   app.use(cors())
 
   app.get('/_log', (req, res) => {
